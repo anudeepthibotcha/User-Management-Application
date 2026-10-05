@@ -42,3 +42,46 @@ user_management_app/
 │
 └── static/
     └── style.css
+
+**## Complete Working Flow**
+The complete project workflow can therefore be represented as:
+
+Start Flask Application
+        ↓
+init_db()
+        ↓
+Create users table if required
+        ↓
+Open Home Page
+        ↓
+HTML Form
+        ↓
+User enters Name, Email, Phone
+        ↓
+<form method="POST">
+        ↓
+request.method == "POST"
+        ↓
+request.form.get()
+        ↓
+Basic Validation
+        ↓
+get_db_connection()
+        ↓
+INSERT INTO users
+        ↓
+connection.commit()
+        ↓
+connection.close()
+        ↓
+redirect(url_for("index"))
+        ↓
+get_all_users()
+        ↓
+SELECT * FROM users
+        ↓
+render_template("index.html", users=users)
+        ↓
+Jinja {% for user in users %}
+        ↓
+Registered Users Table
