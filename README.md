@@ -8,7 +8,7 @@ web application developed using Python, Flask, HTML, CSS, and SQLite.
 The application allows users to add user details through a web form and
 view all registered users in a table.
 
-## Technologies Used
+## Technologies Used 
 
 - Python
 - Flask
@@ -43,7 +43,8 @@ user_management_app/
 └── static/
     └── style.css
 
-**## Complete Working Flow**
+## Project Flow
+
 The complete project workflow can therefore be represented as:
 
 Start Flask Application
