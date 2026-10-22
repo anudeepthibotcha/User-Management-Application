@@ -1,0 +1,378 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard | User Management System</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="dashboard-page">
+
+    <div class="dashboard-layout">
+
+        <!-- =========================
+             SIDEBAR
+        ========================== -->
+        <aside class="sidebar">
+
+            <a href="{{ url_for('dashboard') }}" class="brand">
+                <span class="brand-icon">UM</span>
+
+                <span class="brand-text">
+                    <strong>User Manager</strong>
+                    <small>Management Portal</small>
+                </span>
+            </a>
+
+            <div class="sidebar-label">MAIN MENU</div>
+
+            <nav class="sidebar-nav">
+                <a href="#overview" class="nav-link active">
+                    <span class="nav-icon">▦</span>
+                    <span>Dashboard</span>
+                </a>
+
+                <a href="#add-user" class="nav-link">
+                    <span class="nav-icon">＋</span>
+                    <span>Add User</span>
+                </a>
+
+                <a href="#registered-users" class="nav-link">
+                    <span class="nav-icon">☷</span>
+                    <span>Registered Users</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-bottom">
+                <div class="sidebar-user">
+                    <div class="avatar">
+                        {{ username[0]|upper }}
+                    </div>
+
+                    <div class="sidebar-user-info">
+                        <strong>{{ username }}</strong>
+                        <small>Logged-in user</small>
+                    </div>
+                </div>
+
+                <a href="{{ url_for('logout') }}" class="sidebar-logout">
+                    <span class="nav-icon">↪</span>
+                    Logout
+                </a>
+            </div>
+
+        </aside>
+
+
+        <!-- =========================
+             MAIN CONTENT
+        ========================== -->
+        <main class="main-content">
+
+            <!-- Top bar -->
+            <header class="topbar">
+                <div>
+                    <p class="breadcrumb">User Management / Overview</p>
+                    <h1>Dashboard</h1>
+                </div>
+
+                <div class="topbar-profile">
+                    <div class="status-dot"></div>
+
+                    <div>
+                        <strong>{{ username }}</strong>
+                        <small>Administrator session</small>
+                    </div>
+                </div>
+            </header>
+
+
+            <!-- Dashboard content -->
+            <div class="dashboard-content" id="overview">
+
+                <!-- Welcome section -->
+                <section class="welcome-banner">
+                    <div>
+                        <span class="welcome-label">OVERVIEW</span>
+
+                        <h2>Welcome back, {{ username }}!</h2>
+
+                        <p>
+                            Manage user records, add new users,
+                            and view your database information
+                            from one place.
+                        </p>
+                    </div>
+
+                    <a href="#add-user" class="welcome-action">
+                        + Add New User
+                    </a>
+                </section>
+
+
+                <!-- Flash messages -->
+                {% with messages =
+                    get_flashed_messages(with_categories=true) %}
+
+                    {% if messages %}
+                        <div class="flash-container">
+                            {% for category, message in messages %}
+                                <div class="message {{ category }}">
+                                    <span>
+                                        {% if category == "success" %}
+                                            ✓
+                                        {% else %}
+                                            !
+                                        {% endif %}
+                                    </span>
+
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                {% endwith %}
+
+
+                <!-- Summary cards -->
+                <section class="stats-grid">
+
+                    <article class="stat-card">
+                        <div class="stat-card-top">
+                            <span class="stat-icon blue-icon">☷</span>
+                            <span class="stat-caption">DATABASE</span>
+                        </div>
+
+                        <p class="stat-title">Total User Records</p>
+
+                        <h3>{{ users|length }}</h3>
+
+                        <p class="stat-description">
+                            Records stored in the database
+                        </p>
+                    </article>
+
+
+                    <article class="stat-card">
+                        <div class="stat-card-top">
+                            <span class="stat-icon green-icon">✓</span>
+                            <span class="stat-caption">SESSION</span>
+                        </div>
+
+                        <p class="stat-title">Account Status</p>
+
+                        <h3>Active</h3>
+
+                        <p class="stat-description">
+                            You are successfully logged in
+                        </p>
+                    </article>
+
+
+                    <article class="stat-card">
+                        <div class="stat-card-top">
+                            <span class="stat-icon purple-icon">◉</span>
+                            <span class="stat-caption">PLATFORM</span>
+                        </div>
+
+                        <p class="stat-title">Database System</p>
+
+                        <h3>SQLite</h3>
+
+                        <p class="stat-description">
+                            Persistent local data storage
+                        </p>
+                    </article>
+
+                </section>
+
+
+                <!-- Main dashboard columns -->
+                <div class="dashboard-grid">
+
+
+                    <!-- Add User Form -->
+                    <section class="content-card" id="add-user">
+
+                        <div class="card-heading">
+                            <div>
+                                <h2>Add New User</h2>
+                                <p>
+                                    Enter the details of the new user.
+                                </p>
+                            </div>
+
+                            <span class="heading-icon">＋</span>
+                        </div>
+
+
+                        <form action="{{ url_for('dashboard') }}"
+                              method="POST"
+                              class="user-form">
+
+                            <div class="form-group">
+                                <label for="name">Full Name</label>
+
+                                <input
+                                    type="text"
+                                    id="name"
+                                    name="name"
+                                    maxlength="100"
+                                    placeholder="Enter full name"
+                                    required
+                                >
+                            </div>
+
+
+                            <div class="form-group">
+                                <label for="email">Email Address</label>
+
+                                <input
+                                    type="email"
+                                    id="email"
+                                    name="email"
+                                    maxlength="254"
+                                    placeholder="name@example.com"
+                                    required
+                                >
+                            </div>
+
+
+                            <div class="form-group">
+                                <label for="phone">Phone Number</label>
+
+                                <input
+                                    type="tel"
+                                    id="phone"
+                                    name="phone"
+                                    maxlength="30"
+                                    placeholder="Enter phone number"
+                                    required
+                                >
+                            </div>
+
+
+                            <button type="submit"
+                                    class="primary-button">
+                                + Add User
+                            </button>
+
+                        </form>
+
+                    </section>
+
+
+                    <!-- Recent Users Table -->
+                    <section class="content-card users-card"
+                             id="registered-users">
+
+                        <div class="card-heading">
+                            <div>
+                                <h2>Registered Users</h2>
+                                <p>
+                                    User records stored in SQLite.
+                                </p>
+                            </div>
+
+                            <span class="record-count">
+                                {{ users|length }} records
+                            </span>
+                        </div>
+
+
+                        {% if users %}
+
+                            <div class="table-wrapper">
+                                <table class="dashboard-table">
+
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>User Details</th>
+                                            <th>Email</th>
+                                            <th>Phone</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        {% for user in users %}
+                                            <tr>
+                                                <td>
+                                                    <span class="user-id">
+                                                        #{{ user["id"] }}
+                                                    </span>
+                                                </td>
+
+                                                <td>
+                                                    <div class="table-user">
+                                                        <span class="table-avatar">
+                                                            {{ user["name"][0]|upper }}
+                                                        </span>
+
+                                                        <strong>
+                                                            {{ user["name"] }}
+                                                        </strong>
+                                                    </div>
+                                                </td>
+
+                                                <td class="email-cell">
+                                                    {{ user["email"] }}
+                                                </td>
+
+                                                <td>
+                                                    {{ user["phone"] }}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+
+                                </table>
+                            </div>
+
+                        {% else %}
+
+                            <div class="empty-state">
+                                <span class="empty-state-icon">☷</span>
+
+                                <h3>No users yet</h3>
+
+                                <p>
+                                    Add your first user using the form
+                                    to see the record here.
+                                </p>
+
+                                <a href="#add-user">
+                                    Add your first user
+                                </a>
+                            </div>
+
+                        {% endif %}
+
+                    </section>
+
+                </div>
+
+
+                <!-- Footer -->
+                <footer class="dashboard-footer">
+                    <p>User Management System</p>
+
+                    <p>
+                        Built with Python, Flask, HTML, CSS and SQLite
+                    </p>
+                </footer>
+
+            </div>
+
+        </main>
+
+    </div>
+
+</body>
+</html>
