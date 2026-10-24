@@ -1,88 +1,75 @@
 # User Management Web Application
 
-## Project Description
+## Project Overview
 
-The User Management Web Application is a beginner-friendly full-stack
-web application developed using Python, Flask, HTML, CSS, and SQLite.
+This project upgrades the original Task 1 User Management Web
+Application by adding user registration, login, password hashing,
+session-based authentication, a protected dashboard, and logout.
 
-The application allows users to add user details through a web form and
-view all registered users in a table.
+The application uses Python, Flask, HTML, CSS, SQLite, and
+Werkzeug password-hashing utilities.
 
-## Technologies Used 
+## Features
+
+- User account registration
+- Unique usernames
+- Password hashing
+- Password confirmation
+- User login and password verification
+- Session-based authentication
+- Protected dashboard
+- Add user details: name, email, and phone
+- Display registered user records
+- Logout functionality
+- SQLite database persistence
+- Responsive interface
+
+## Technologies
 
 - Python
 - Flask
 - HTML
 - CSS
 - SQLite
-- VS Code
-
-## Features
-
-- Home page with user registration form
-- Add new user details
-- Store users in SQLite database
-- Fetch all users
-- Display users in an HTML table
-- Basic form validation
-- Clean CSS-based interface
+- Werkzeug
 
 ## Project Structure
 
 ```text
 user_management_app/
-│
 ├── app.py
-├── database.db
 ├── requirements.txt
 ├── README.md
-│
+├── database.db
 ├── templates/
-│   └── index.html
-│
+│   ├── register.html
+│   ├── login.html
+│   └── dashboard.html
 └── static/
     └── style.css
 
-## Project Flow
+## Project Workflow Flowchart
 
-The complete project workflow can therefore be represented as:
+The following flowchart illustrates the overall workflow, from opening the application to registration, authentication, database operations, and logout.
 
-Start Flask Application
-        ↓
-init_db()
-        ↓
-Create users table if required
-        ↓
-Open Home Page
-        ↓
-HTML Form
-        ↓
-User enters Name, Email, Phone
-        ↓
-<form method="POST">
-        ↓
-request.method == "POST"
-        ↓
+Browser form (POST)
+   ↓
 request.form.get()
-        ↓
-Basic Validation
-        ↓
+   ↓
+Server-side validation
+   ↓
 get_db_connection()
-        ↓
-INSERT INTO users
-        ↓
-connection.commit()
-        ↓
-connection.close()
-        ↓
-redirect(url_for("index"))
-        ↓
-get_all_users()
-        ↓
-SELECT * FROM users
-        ↓
-render_template("index.html", users=users)
-        ↓
+   ↓
+INSERT INTO users / accounts (parameterized query)
+   ↓
+connection.commit() → connection.close()
+   ↓
+flash() message + redirect(url_for("dashboard"))
+   ↓
+get_all_users() → SELECT * FROM users ORDER BY id DESC
+   ↓
+render_template("dashboard.html", users=users)
+   ↓
 Jinja {% for user in users %}
-        ↓
-Registered Users Table
+   ↓
+Registered Users table in the browser
