@@ -35,16 +35,19 @@ Werkzeug password-hashing utilities.
 
 ## Project Structure
 
-```text
-user_management_app/
+User Management App/
+│
 ├── app.py
 ├── requirements.txt
 ├── README.md
 ├── database.db
+│
 ├── templates/
 │   ├── register.html
 │   ├── login.html
-│   └── dashboard.html
+│   ├── dashboard.html
+│   └── index.html
+│
 └── static/
     └── style.css
 
