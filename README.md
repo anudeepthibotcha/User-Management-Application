@@ -2,12 +2,9 @@
 
 ## Project Overview
 
-This project upgrades the original Task 1 User Management Web
-Application by adding user registration, login, password hashing,
-session-based authentication, a protected dashboard, and logout.
+The User Management Web Application simplifies the process of registering accounts, authenticating users, and maintaining user information through a web interface.
 
-The application uses Python, Flask, HTML, CSS, SQLite, and
-Werkzeug password-hashing utilities.
+The application uses Flask for backend processing, SQLite for persistent data storage, HTML and CSS for the user interface, and Werkzeug for password hashing and verification. Authenticated users can access the dashboard, add user details, view registered records, and log out securely.
 
 ## Features
 
@@ -26,12 +23,18 @@ Werkzeug password-hashing utilities.
 
 ## Technologies
 
-- Python
-- Flask
-- HTML
-- CSS
-- SQLite
-- Werkzeug
+Technology - Purpose
+
+Python - Backend programming
+Flask - Web framework and routing
+HTML5 - Structure of web pages
+CSS3 - Styling and layout
+SQLite - Persistent database storage
+Werkzeug - Password hashing and verification
+Jinja2 - Dynamic HTML template rendering
+Flask Sessions - Maintaining authenticated user sessions
+VS Code - Development environment
+Git and GitHub - Version control and source code hosting
 
 ## Project Structure
 
