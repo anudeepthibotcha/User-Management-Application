@@ -8,18 +8,21 @@ The application uses Flask for backend processing, SQLite for persistent data st
 
 ## Features
 
-- User account registration
+- Account registration with password confirmation
 - Unique usernames
-- Password hashing
-- Password confirmation
-- User login and password verification
+- Password hashing using Werkzeug
+- Login and password verification
 - Session-based authentication
-- Protected dashboard
-- Add user details: name, email, and phone
-- Display registered user records
-- Logout functionality
-- SQLite database persistence
-- Responsive interface
+- Protected dashboard and CRUD routes
+- Create user records
+- Read and display saved user records
+- Edit existing user records
+- Delete records with browser confirmation
+- Server-side field validation
+- Parameterized SQL queries
+- Success and error flash messages
+- Persistent SQLite storage
+- Responsive dashboard interface
 
 ## Technologies
 
@@ -39,18 +42,16 @@ Git and GitHub - Version control and source code hosting
 ## Project Structure
 
 User Management App/
-│
 ├── app.py
 ├── requirements.txt
 ├── README.md
 ├── database.db
-│
 ├── templates/
-│   ├── register.html
 │   ├── login.html
+│   ├── register.html
 │   ├── dashboard.html
+│   ├── edit_user.html
 │   └── index.html
-│
 └── static/
     └── style.css
 
@@ -58,24 +59,27 @@ User Management App/
 
 The following flowchart illustrates the overall workflow, from opening the application to registration, authentication, database operations, and logout.
 
-Browser form (POST)
+Browser request (GET / POST)
    ↓
-request.form.get()
+Flask URL routing → matches @app.route()
    ↓
-Server-side validation
+@login_required → session.get("user") exists?
+   ├── No  → flash("Please log in...") + redirect(url_for("login"))
+   └── Yes ↓
+Route function runs (dashboard / edit_user / delete_user)
    ↓
-get_db_connection()
+request.form.get() → validate_user_form()   [Create & Update only]
    ↓
-INSERT INTO users / accounts (parameterized query)
+get_db_connection() → parameterized SQL query
    ↓
 connection.commit() → connection.close()
    ↓
 flash() message + redirect(url_for("dashboard"))
    ↓
-get_all_users() → SELECT * FROM users ORDER BY id DESC
+get_all_users() → SELECT id, name, email, phone FROM users ORDER BY id DESC
    ↓
-render_template("dashboard.html", users=users)
+render_template("dashboard.html", username=..., users=users)
    ↓
 Jinja {% for user in users %}
    ↓
-Registered Users table in the browser
+Registered Users table with Edit / Delete buttons in the browser
