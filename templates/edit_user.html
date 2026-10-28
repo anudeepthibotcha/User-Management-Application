@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Edit User | User Management System</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <main class="auth-container">
+        <section class="auth-card">
+
+            <h1>Edit User Details</h1>
+
+            <p class="subtitle">
+                Update the selected record and save your changes.
+            </p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="message {{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form
+                action="{{ url_for('edit_user', user_id=user['id']) }}"
+                method="POST"
+            >
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+
+                    <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        maxlength="100"
+                        value="{{ user['name'] }}"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        maxlength="254"
+                        value="{{ user['email'] }}"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+
+                    <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        maxlength="30"
+                        value="{{ user['phone'] }}"
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="primary-button">
+                    Save Changes
+                </button>
+            </form>
+
+            <p class="auth-link">
+                <a href="{{ url_for('dashboard') }}">
+                    ← Back to Dashboard
+                </a>
+            </p>
+
+        </section>
+    </main>
+</body>
+</html>

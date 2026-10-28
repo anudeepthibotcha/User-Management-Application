@@ -1,15 +1,16 @@
 import os
 import sqlite3
+from functools import wraps
 from pathlib import Path
 
 from flask import (
     Flask,
+    flash,
+    redirect,
     render_template,
     request,
-    redirect,
-    url_for,
     session,
-    flash,
+    url_for,
 )
 
 from werkzeug.security import (
@@ -18,43 +19,33 @@ from werkzeug.security import (
 )
 
 
-# --------------------------------------------------
-# 1. Create Flask application
-# --------------------------------------------------
-
+# 1. Create the Flask application
 app = Flask(__name__)
 
-# Development key only. Configure a secure environment variable
-# before deploying this application.
+# Development fallback only. Set SECRET_KEY through an environment
+# variable when deploying the application.
 app.config["SECRET_KEY"] = os.environ.get(
     "SECRET_KEY",
-    "dev-only-change-this-secret-key"
+    "dev-only-change-this-secret-key",
 )
 
-# Find the project folder and database file
+# Keep the database beside app.py.
 BASE_DIR = Path(__file__).resolve().parent
 DATABASE = BASE_DIR / "database.db"
 
 
-# --------------------------------------------------
-# 2. Connect to SQLite database
-# --------------------------------------------------
-
+# 2. Database connection
 def get_db_connection():
     connection = sqlite3.connect(DATABASE)
     connection.row_factory = sqlite3.Row
     return connection
 
 
-# --------------------------------------------------
-# 3. Initialize database tables
-# --------------------------------------------------
-
+# 3. Create tables without deleting existing records
 def init_db():
     connection = get_db_connection()
 
     try:
-        # Task 2: Authentication accounts
         connection.execute("""
             CREATE TABLE IF NOT EXISTS accounts (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -63,7 +54,6 @@ def init_db():
             )
         """)
 
-        # Task 1: User management records
         connection.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -79,120 +69,138 @@ def init_db():
         connection.close()
 
 
-# --------------------------------------------------
-# 4. Home page - FIX FOR THE 404 ERROR
-# --------------------------------------------------
+# 4. Protect pages that require login
+def login_required(view_function):
+    @wraps(view_function)
+    def wrapped_view(*args, **kwargs):
+        if not session.get("user"):
+            flash(
+                "Please log in to access this page.",
+                "error",
+            )
+            return redirect(url_for("login"))
 
+        return view_function(*args, **kwargs)
+
+    return wrapped_view
+
+
+# 5. Validate user details for Create and Update
+def validate_user_form():
+    name = request.form.get("name", "").strip()
+    email = request.form.get("email", "").strip()
+    phone = request.form.get("phone", "").strip()
+
+    if not name or not email or not phone:
+        return None, "Please fill in all user details."
+
+    if len(name) > 100 or len(email) > 254 or len(phone) > 30:
+        return None, "One or more fields exceed the allowed length."
+
+    if (
+        "@" not in email
+        or "." not in email.rsplit("@", 1)[-1]
+        or any(character.isspace() for character in email)
+    ):
+        return None, "Enter a valid email address."
+
+    return (name, email, phone), None
+
+
+# 6. Retrieve all user records
+def get_all_users():
+    connection = get_db_connection()
+
+    try:
+        users = connection.execute("""
+            SELECT id, name, email, phone
+            FROM users
+            ORDER BY id DESC
+        """).fetchall()
+
+        return users
+
+    finally:
+        connection.close()
+
+
+# 7. Home page
 @app.route("/")
 def home():
-    """
-    Home page.
-
-    If the user is logged in, open the dashboard.
-    Otherwise, redirect to the login page.
-    """
-
     if session.get("user"):
         return redirect(url_for("dashboard"))
 
     return redirect(url_for("login"))
 
 
-# --------------------------------------------------
-# 5. User registration
-# --------------------------------------------------
-
+# 8. Account registration
 @app.route("/register", methods=["GET", "POST"])
 def register():
-
-    # Logged-in users do not need to register again
     if session.get("user"):
         return redirect(url_for("dashboard"))
 
     if request.method == "POST":
-
-        username = request.form.get(
-            "username", ""
-        ).strip()
-
+        username = request.form.get("username", "").strip()
         password = request.form.get("password", "")
+        confirm_password = request.form.get("confirm_password", "")
 
-        confirm_password = request.form.get(
-            "confirm_password", ""
-        )
-
-        # Validate the input
         if not username or not password or not confirm_password:
             flash("Please fill in all fields.", "error")
-            return render_template("register.html")
 
-        if len(username) > 50:
+        elif len(username) > 50:
             flash(
                 "Username must be 50 characters or fewer.",
                 "error",
             )
-            return render_template("register.html")
 
-        if len(password) < 8:
+        elif len(password) < 8:
             flash(
                 "Password must contain at least 8 characters.",
                 "error",
             )
-            return render_template("register.html")
 
-        if password != confirm_password:
+        elif password != confirm_password:
             flash("Passwords do not match.", "error")
-            return render_template("register.html")
 
-        # Hash the password before storing it
-        password_hash = generate_password_hash(password)
+        else:
+            password_hash = generate_password_hash(password)
+            connection = get_db_connection()
 
-        connection = get_db_connection()
+            try:
+                connection.execute(
+                    """
+                    INSERT INTO accounts (username, password_hash)
+                    VALUES (?, ?)
+                    """,
+                    (username, password_hash),
+                )
 
-        try:
-            connection.execute(
-                """
-                INSERT INTO accounts (username, password_hash)
-                VALUES (?, ?)
-                """,
-                (username, password_hash),
-            )
+                connection.commit()
 
-            connection.commit()
+            except sqlite3.IntegrityError:
+                flash("That username already exists.", "error")
 
-        except sqlite3.IntegrityError:
-            flash("That username already exists.", "error")
-            return render_template("register.html")
+            else:
+                flash(
+                    "Account created successfully. Please log in.",
+                    "success",
+                )
+                return redirect(url_for("login"))
 
-        finally:
-            connection.close()
-
-        flash(
-            "Account created successfully. Please log in.",
-            "success",
-        )
-
-        return redirect(url_for("login"))
+            finally:
+                connection.close()
 
     return render_template("register.html")
 
 
-# --------------------------------------------------
-# 6. User login
-# --------------------------------------------------
-
+# 9. Login
 @app.route("/login", methods=["GET", "POST"])
 def login():
-
     if session.get("user"):
         return redirect(url_for("dashboard"))
 
     if request.method == "POST":
-
-        username = request.form.get(
-            "username", ""
-        ).strip()
-
+        username = request.form.get("username", "").strip()
         password = request.form.get("password", "")
 
         if not username or not password:
@@ -217,15 +225,11 @@ def login():
         finally:
             connection.close()
 
-        # Verify the entered password
-        if (
-            account
-            and check_password_hash(
-                account["password_hash"],
-                password,
-            )
+        if account and check_password_hash(
+            account["password_hash"],
+            password,
         ):
-            # Start a new authenticated session
+            # Start a fresh session after successful authentication.
             session.clear()
             session["user"] = account["username"]
 
@@ -236,68 +240,15 @@ def login():
     return render_template("login.html")
 
 
-# --------------------------------------------------
-# 7. Retrieve Task 1 user records
-# --------------------------------------------------
-
-def get_all_users():
-    connection = get_db_connection()
-
-    try:
-        users = connection.execute(
-            "SELECT * FROM users ORDER BY id DESC"
-        ).fetchall()
-
-        return users
-
-    finally:
-        connection.close()
-
-
-# --------------------------------------------------
-# 8. Protected dashboard and Task 1 functionality
-# --------------------------------------------------
-
+# 10. CREATE and READ: add records and show the dashboard
 @app.route("/dashboard", methods=["GET", "POST"])
+@login_required
 def dashboard():
-
-    # Prevent access without authentication
-    if not session.get("user"):
-        flash(
-            "Please log in to access the dashboard.",
-            "error",
-        )
-        return redirect(url_for("login"))
-
     if request.method == "POST":
+        details, error = validate_user_form()
 
-        # Get Task 1 form data
-        name = request.form.get("name", "").strip()
-        email = request.form.get("email", "").strip()
-        phone = request.form.get("phone", "").strip()
-
-        # Validate user details
-        if not name or not email or not phone:
-            flash(
-                "Please fill in all user details.",
-                "error",
-            )
-
-        elif (
-            len(name) > 100
-            or len(email) > 254
-            or len(phone) > 30
-        ):
-            flash(
-                "One or more fields exceed the allowed length.",
-                "error",
-            )
-
-        elif (
-            "@" not in email
-            or "." not in email.rsplit("@", 1)[-1]
-        ):
-            flash("Enter a valid email address.", "error")
+        if error:
+            flash(error, "error")
 
         else:
             connection = get_db_connection()
@@ -308,54 +259,127 @@ def dashboard():
                     INSERT INTO users (name, email, phone)
                     VALUES (?, ?, ?)
                     """,
-                    (name, email, phone),
+                    details,
                 )
 
                 connection.commit()
 
-                flash(
-                    "User added successfully.",
-                    "success",
-                )
-
             finally:
                 connection.close()
 
-        # Redirect after submission to avoid duplicate form submissions
-        return redirect(url_for("dashboard"))
+            flash("User added successfully.", "success")
 
-    # Display existing Task 1 records
-    users = get_all_users()
+        # Post/Redirect/Get avoids resubmission when refreshing.
+        return redirect(url_for("dashboard"))
 
     return render_template(
         "dashboard.html",
         username=session["user"],
-        users=users,
+        users=get_all_users(),
     )
 
 
-# --------------------------------------------------
-# 9. Logout
-# --------------------------------------------------
+# 11. UPDATE: load a record and save its changes
+@app.route("/users/<int:user_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_user(user_id):
+    connection = get_db_connection()
 
+    try:
+        user = connection.execute(
+            """
+            SELECT id, name, email, phone
+            FROM users
+            WHERE id = ?
+            """,
+            (user_id,),
+        ).fetchone()
+
+    finally:
+        connection.close()
+
+    if user is None:
+        flash("User record not found.", "error")
+        return redirect(url_for("dashboard"))
+
+    if request.method == "POST":
+        details, error = validate_user_form()
+
+        if error:
+            flash(error, "error")
+            return render_template(
+                "edit_user.html",
+                username=session["user"],
+                user=user,
+            )
+
+        connection = get_db_connection()
+
+        try:
+            cursor = connection.execute(
+                """
+                UPDATE users
+                SET name = ?, email = ?, phone = ?
+                WHERE id = ?
+                """,
+                (*details, user_id),
+            )
+
+            updated_rows = cursor.rowcount
+            connection.commit()
+
+        finally:
+            connection.close()
+
+        if updated_rows:
+            flash("User updated successfully.", "success")
+        else:
+            flash("User record no longer exists.", "error")
+
+        return redirect(url_for("dashboard"))
+
+    return render_template(
+        "edit_user.html",
+        username=session["user"],
+        user=user,
+    )
+
+
+# 12. DELETE: remove a record using a POST request
+@app.route("/users/<int:user_id>/delete", methods=["POST"])
+@login_required
+def delete_user(user_id):
+    connection = get_db_connection()
+
+    try:
+        cursor = connection.execute(
+            "DELETE FROM users WHERE id = ?",
+            (user_id,),
+        )
+
+        deleted_rows = cursor.rowcount
+        connection.commit()
+
+    finally:
+        connection.close()
+
+    if deleted_rows:
+        flash("User deleted successfully.", "success")
+    else:
+        flash("User record not found.", "error")
+
+    return redirect(url_for("dashboard"))
+
+
+# 13. Logout
 @app.route("/logout", methods=["GET", "POST"])
 def logout():
-
     session.clear()
-
     flash("You have been logged out.", "success")
-
     return redirect(url_for("login"))
 
 
-# --------------------------------------------------
-# 10. Start the application
-# --------------------------------------------------
-
+# 14. Initialize the database and start the development server
 if __name__ == "__main__":
-
-    # Create tables without deleting existing records
     init_db()
-
-    # Start the Flask development server
     app.run(debug=True)

@@ -49,6 +49,7 @@
             </nav>
 
             <div class="sidebar-bottom">
+
                 <div class="sidebar-user">
                     <div class="avatar">
                         {{ username[0]|upper }}
@@ -64,6 +65,7 @@
                     <span class="nav-icon">↪</span>
                     Logout
                 </a>
+
             </div>
 
         </aside>
@@ -76,8 +78,12 @@
 
             <!-- Top bar -->
             <header class="topbar">
+
                 <div>
-                    <p class="breadcrumb">User Management / Overview</p>
+                    <p class="breadcrumb">
+                        User Management / Overview
+                    </p>
+
                     <h1>Dashboard</h1>
                 </div>
 
@@ -86,17 +92,21 @@
 
                     <div>
                         <strong>{{ username }}</strong>
-                        <small>Administrator session</small>
+                        <small>Logged-in session</small>
                     </div>
                 </div>
+
             </header>
 
 
             <!-- Dashboard content -->
             <div class="dashboard-content" id="overview">
 
-                <!-- Welcome section -->
+                <!-- =========================
+                     WELCOME SECTION
+                ========================== -->
                 <section class="welcome-banner">
+
                     <div>
                         <span class="welcome-label">OVERVIEW</span>
 
@@ -104,25 +114,32 @@
 
                         <p>
                             Manage user records, add new users,
-                            and view your database information
-                            from one place.
+                            edit existing details, and remove
+                            records from one place.
                         </p>
                     </div>
 
                     <a href="#add-user" class="welcome-action">
                         + Add New User
                     </a>
+
                 </section>
 
 
-                <!-- Flash messages -->
+                <!-- =========================
+                     FLASH MESSAGES
+                ========================== -->
                 {% with messages =
                     get_flashed_messages(with_categories=true) %}
 
                     {% if messages %}
+
                         <div class="flash-container">
+
                             {% for category, message in messages %}
+
                                 <div class="message {{ category }}">
+
                                     <span>
                                         {% if category == "success" %}
                                             ✓
@@ -132,18 +149,26 @@
                                     </span>
 
                                     {{ message }}
+
                                 </div>
+
                             {% endfor %}
+
                         </div>
+
                     {% endif %}
 
                 {% endwith %}
 
 
-                <!-- Summary cards -->
+                <!-- =========================
+                     SUMMARY CARDS
+                ========================== -->
                 <section class="stats-grid">
 
+                    <!-- Total records -->
                     <article class="stat-card">
+
                         <div class="stat-card-top">
                             <span class="stat-icon blue-icon">☷</span>
                             <span class="stat-caption">DATABASE</span>
@@ -156,10 +181,13 @@
                         <p class="stat-description">
                             Records stored in the database
                         </p>
+
                     </article>
 
 
+                    <!-- Account status -->
                     <article class="stat-card">
+
                         <div class="stat-card-top">
                             <span class="stat-icon green-icon">✓</span>
                             <span class="stat-caption">SESSION</span>
@@ -172,10 +200,13 @@
                         <p class="stat-description">
                             You are successfully logged in
                         </p>
+
                     </article>
 
 
+                    <!-- Database technology -->
                     <article class="stat-card">
+
                         <div class="stat-card-top">
                             <span class="stat-icon purple-icon">◉</span>
                             <span class="stat-caption">PLATFORM</span>
@@ -188,27 +219,35 @@
                         <p class="stat-description">
                             Persistent local data storage
                         </p>
+
                     </article>
 
                 </section>
 
 
-                <!-- Main dashboard columns -->
+                <!-- =========================
+                     MAIN DASHBOARD COLUMNS
+                ========================== -->
                 <div class="dashboard-grid">
 
 
-                    <!-- Add User Form -->
+                    <!-- =========================
+                         CREATE: ADD USER FORM
+                    ========================== -->
                     <section class="content-card" id="add-user">
 
                         <div class="card-heading">
+
                             <div>
                                 <h2>Add New User</h2>
+
                                 <p>
                                     Enter the details of the new user.
                                 </p>
                             </div>
 
                             <span class="heading-icon">＋</span>
+
                         </div>
 
 
@@ -217,6 +256,7 @@
                               class="user-form">
 
                             <div class="form-group">
+
                                 <label for="name">Full Name</label>
 
                                 <input
@@ -227,10 +267,12 @@
                                     placeholder="Enter full name"
                                     required
                                 >
+
                             </div>
 
 
                             <div class="form-group">
+
                                 <label for="email">Email Address</label>
 
                                 <input
@@ -241,10 +283,12 @@
                                     placeholder="name@example.com"
                                     required
                                 >
+
                             </div>
 
 
                             <div class="form-group">
+
                                 <label for="phone">Phone Number</label>
 
                                 <input
@@ -255,6 +299,7 @@
                                     placeholder="Enter phone number"
                                     required
                                 >
+
                             </div>
 
 
@@ -268,27 +313,35 @@
                     </section>
 
 
-                    <!-- Recent Users Table -->
+
+                    <!-- =========================
+                         READ: REGISTERED USERS
+                    ========================== -->
                     <section class="content-card users-card"
                              id="registered-users">
 
                         <div class="card-heading">
+
                             <div>
                                 <h2>Registered Users</h2>
+
                                 <p>
-                                    User records stored in SQLite.
+                                    View and manage user records stored
+                                    in the SQLite database.
                                 </p>
                             </div>
 
                             <span class="record-count">
                                 {{ users|length }} records
                             </span>
+
                         </div>
 
 
                         {% if users %}
 
                             <div class="table-wrapper">
+
                                 <table class="dashboard-table">
 
                                     <thead>
@@ -297,47 +350,111 @@
                                             <th>User Details</th>
                                             <th>Email</th>
                                             <th>Phone</th>
+                                            <th>Actions</th>
                                         </tr>
                                     </thead>
 
+
                                     <tbody>
+
                                         {% for user in users %}
+
                                             <tr>
+
+                                                <!-- User ID -->
                                                 <td>
                                                     <span class="user-id">
                                                         #{{ user["id"] }}
                                                     </span>
                                                 </td>
 
+
+                                                <!-- User name -->
                                                 <td>
+
                                                     <div class="table-user">
+
                                                         <span class="table-avatar">
-                                                            {{ user["name"][0]|upper }}
+                                                            {% if user["name"] %}
+                                                                {{ user["name"][0]|upper }}
+                                                            {% else %}
+                                                                U
+                                                            {% endif %}
                                                         </span>
 
                                                         <strong>
                                                             {{ user["name"] }}
                                                         </strong>
+
                                                     </div>
+
                                                 </td>
 
+
+                                                <!-- Email -->
                                                 <td class="email-cell">
                                                     {{ user["email"] }}
                                                 </td>
 
+
+                                                <!-- Phone -->
                                                 <td>
                                                     {{ user["phone"] }}
                                                 </td>
+
+
+                                                <!-- UPDATE AND DELETE ACTIONS -->
+                                                <td>
+
+                                                    <div class="action-buttons">
+
+                                                        <!-- UPDATE -->
+                                                        <a
+                                                            href="{{ url_for('edit_user', user_id=user['id']) }}"
+                                                            class="action-button"
+                                                            aria-label="Edit {{ user['name'] }}"
+                                                        >
+                                                            Edit
+                                                        </a>
+
+
+                                                        <!-- DELETE -->
+                                                        <form
+                                                            action="{{ url_for('delete_user', user_id=user['id']) }}"
+                                                            method="POST"
+                                                            class="action-form"
+                                                            onsubmit="return confirm('Are you sure you want to delete this user record? This action cannot be undone.');"
+                                                        >
+
+                                                            <button
+                                                                type="submit"
+                                                                class="action-button delete-button"
+                                                            >
+                                                                Delete
+                                                            </button>
+
+                                                        </form>
+
+                                                    </div>
+
+                                                </td>
+
                                             </tr>
+
                                         {% endfor %}
+
                                     </tbody>
 
                                 </table>
+
                             </div>
+
 
                         {% else %}
 
+                            <!-- Empty state -->
                             <div class="empty-state">
+
                                 <span class="empty-state-icon">☷</span>
 
                                 <h3>No users yet</h3>
@@ -350,6 +467,7 @@
                                 <a href="#add-user">
                                     Add your first user
                                 </a>
+
                             </div>
 
                         {% endif %}
@@ -359,13 +477,17 @@
                 </div>
 
 
-                <!-- Footer -->
+                <!-- =========================
+                     FOOTER
+                ========================== -->
                 <footer class="dashboard-footer">
+
                     <p>User Management System</p>
 
                     <p>
                         Built with Python, Flask, HTML, CSS and SQLite
                     </p>
+
                 </footer>
 
             </div>
