@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Panel | User Management System</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="dashboard-page">
+
+<div class="dashboard-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <a href="{{ url_for('admin_dashboard') }}" class="brand">
+            <span class="brand-icon">UM</span>
+
+            <span class="brand-text">
+                <strong>User Manager</strong>
+                <small>Administration</small>
+            </span>
+        </a>
+
+        <div class="sidebar-label">ADMIN MENU</div>
+
+        <nav class="sidebar-nav">
+
+            <a href="#admin-overview" class="nav-link active">
+                <span class="nav-icon">▦</span>
+                <span>Admin Overview</span>
+            </a>
+
+            <a href="#accounts" class="nav-link">
+                <span class="nav-icon">☷</span>
+                <span>Account Directory</span>
+            </a>
+
+            <a href="{{ url_for('dashboard') }}" class="nav-link">
+                <span class="nav-icon">✎</span>
+                <span>Manage Records</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <div class="sidebar-user">
+                <div class="avatar">
+                    {{ username[0]|upper }}
+                </div>
+
+                <div class="sidebar-user-info">
+                    <strong>{{ username }}</strong>
+                    <small>Administrator</small>
+                </div>
+            </div>
+
+            <a href="{{ url_for('logout') }}" class="sidebar-logout">
+                <span class="nav-icon">↪</span>
+                Logout
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <header class="topbar">
+
+            <div>
+                <p class="breadcrumb">
+                    User Management / Administration
+                </p>
+
+                <h1>Admin Panel</h1>
+            </div>
+
+            <div class="topbar-profile">
+                <div class="status-dot"></div>
+
+                <div>
+                    <strong>{{ username }}</strong>
+                    <small>Administrator session</small>
+                </div>
+            </div>
+
+        </header>
+
+
+        <div class="dashboard-content" id="admin-overview">
+
+            <!-- WELCOME SECTION -->
+            <section class="welcome-banner">
+
+                <div>
+                    <span class="welcome-label">
+                        ADMINISTRATION
+                    </span>
+
+                    <h2>Welcome, {{ username }}!</h2>
+
+                    <p>
+                        View registered accounts, monitor roles,
+                        and manage all user records.
+                    </p>
+                </div>
+
+                <a href="{{ url_for('dashboard') }}"
+                   class="welcome-action">
+                    Manage User Records
+                </a>
+
+            </section>
+
+
+            <!-- FLASH MESSAGES -->
+            {% with messages =
+                get_flashed_messages(with_categories=true) %}
+
+                {% if messages %}
+
+                    <div class="flash-container">
+
+                        {% for category, message in messages %}
+
+                            <div class="message {{ category }}">
+                                <span>
+                                    {% if category == "success" %}
+                                        ✓
+                                    {% else %}
+                                        !
+                                    {% endif %}
+                                </span>
+
+                                {{ message }}
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% endif %}
+
+            {% endwith %}
+
+
+            <!-- ADMIN SUMMARY CARDS -->
+            <section class="stats-grid">
+
+                <article class="stat-card">
+
+                    <div class="stat-card-top">
+                        <span class="stat-icon blue-icon">☷</span>
+                        <span class="stat-caption">ACCOUNTS</span>
+                    </div>
+
+                    <p class="stat-title">Total Accounts</p>
+
+                    <h3>{{ accounts|length }}</h3>
+
+                    <p class="stat-description">
+                        Registered application accounts
+                    </p>
+
+                </article>
+
+
+                <article class="stat-card">
+
+                    <div class="stat-card-top">
+                        <span class="stat-icon green-icon">✓</span>
+                        <span class="stat-caption">ADMIN</span>
+                    </div>
+
+                    <p class="stat-title">Administrators</p>
+
+                    <h3>{{ total_admins }}</h3>
+
+                    <p class="stat-description">
+                        Accounts with admin permissions
+                    </p>
+
+                </article>
+
+
+                <article class="stat-card">
+
+                    <div class="stat-card-top">
+                        <span class="stat-icon purple-icon">◉</span>
+                        <span class="stat-caption">RECORDS</span>
+                    </div>
+
+                    <p class="stat-title">Managed Records</p>
+
+                    <h3>{{ total_records }}</h3>
+
+                    <p class="stat-description">
+                        Rows in the user records table
+                    </p>
+
+                </article>
+
+            </section>
+
+
+            <!-- ACCOUNT DIRECTORY -->
+            <section class="content-card admin-accounts-card"
+                     id="accounts">
+
+                <div class="card-heading">
+
+                    <div>
+                        <h2>Registered Application Accounts</h2>
+
+                        <p>
+                            Review account usernames and assigned access roles.
+                        </p>
+                    </div>
+
+                    <span class="record-count">
+                        {{ total_normal_users }} normal users
+                    </span>
+
+                </div>
+
+
+                {% if accounts %}
+
+                    <div class="table-wrapper">
+
+                        <table class="dashboard-table">
+
+                            <thead>
+                                <tr>
+                                    <th>Account ID</th>
+                                    <th>Username</th>
+                                    <th>Access Role</th>
+                                </tr>
+                            </thead>
+
+
+                            <tbody>
+
+                                {% for account in accounts %}
+
+                                    <tr>
+
+                                        <td>
+                                            <span class="user-id">
+                                                #{{ account["id"] }}
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            <strong>
+                                                {{ account["username"] }}
+                                            </strong>
+                                        </td>
+
+                                        <td>
+
+                                            {% if account["role"] == "admin" %}
+
+                                                <span class="role-badge admin-badge">
+                                                    Administrator
+                                                </span>
+
+                                            {% else %}
+
+                                                <span class="role-badge user-badge">
+                                                    Normal User
+                                                </span>
+
+                                            {% endif %}
+
+                                        </td>
+
+                                    </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="empty-state">
+                        <h3>No application accounts found</h3>
+                    </div>
+
+                {% endif %}
+
+            </section>
+
+
+            <!-- PERMISSION INFORMATION -->
+            <div class="admin-note">
+
+                <strong>Role permissions</strong>
+
+                <p>
+                    Administrators can create, view, update, and delete
+                    user records. Normal users can view records only.
+                    New registrations receive the normal-user role by default.
+                </p>
+
+            </div>
+
+
+            <!-- FOOTER -->
+            <footer class="dashboard-footer">
+
+                <p>User Management System</p>
+
+                <p>
+                    Administrator dashboard · Flask and SQLite
+                </p>
+
+            </footer>
+
+        </div>
+
+    </main>
+
+</div>
+
+</body>
+</html>

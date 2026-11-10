@@ -1100,3 +1100,84 @@ button,
 .delete-button:hover {
     background: #ffe0dd;
 }
+
+/* =========================================
+   TASK 4: ROLE-BASED ACCESS AND ADMIN PANEL
+========================================= */
+
+/* Registration role information */
+.role-note {
+    margin: -8px 0 18px;
+    padding: 10px 12px;
+    border: 1px solid #dce5ff;
+    border-radius: 8px;
+    background: #f2f5ff;
+    color: #52617b;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* Role labels */
+.role-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.admin-badge {
+    background: #e9edff;
+    color: #344fbd;
+}
+
+.user-badge {
+    background: #e8f6ee;
+    color: #24764f;
+}
+
+/* Normal-user dashboard uses one main column */
+.viewer-grid {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+/* Admin account list */
+.admin-accounts-card {
+    margin-bottom: 20px;
+}
+
+/* Admin permission information */
+.admin-note {
+    padding: 18px 20px;
+    border: 1px solid #e5eaf3;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #536078;
+    font-size: 12px;
+}
+
+.admin-note strong {
+    display: block;
+    margin-bottom: 6px;
+    color: #2e3d58;
+    font-size: 13px;
+}
+
+.admin-note p {
+    line-height: 1.7;
+}
+
+@media (max-width: 600px) {
+
+    .role-badge {
+        font-size: 9px;
+        padding: 5px 8px;
+    }
+
+    .admin-note {
+        padding: 15px;
+    }
+}
